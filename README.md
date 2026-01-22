@@ -2,6 +2,13 @@
 badappleduino - video streaming for ssd1306 & arduino
 =====================================================
 
+
+## Demo Video
+[![Watch the demo](https://img.youtube.com/vi/GT6FCmWX1Uk/0.jpg)](https://www.youtube.com/watch?v=GT6FCmWX1Uk)
+
+
+
+
 this project lets you stream any video from your pc to a 
 128x64 oled display via an arduino. it's optimized for 
 the legendary 'bad apple' video but technically works with 
