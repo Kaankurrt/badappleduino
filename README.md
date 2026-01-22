@@ -52,7 +52,7 @@ how fast the arduino can clear its buffer.
 
 --- RUN ---
 
-python main.py
+python player.py
 
 the script uses a handshake system (0xAA/0x55) to keep the 
 python sender and arduino receiver in sync. it won't fix 
