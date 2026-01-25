@@ -1,73 +1,112 @@
-badappleduino - video streaming for ssd1306 & arduino
-=====================================================
+# badappleduino
 
-demo video
+video streaming for ssd1306 oled displays using arduino as a serial bridge.
 
-this project lets you stream any video from your pc to an oled display via an arduino. while optimized for the legendary 'bad apple' video, it supports custom resolutions and works with any mp4/avi file through a specialized python-to-arduino bridge.
+this project implements a pc-driven video player that streams 1-bit frames to a 128x64 ssd1306 display. video frames are processed, thresholded, run-length encoded, and sent over high-speed serial. originally optimized for bad apple playback, but works with arbitrary video files.
 
---- how it works ---
+# demo video
 
-(THIS IS THE README OF THE V2. V1 IS NOT AVAILABLE ANYMORE.)
+[<img src="https://i.ytimg.com/vi/zpJZMAIo5Sw/maxresdefault.jpg" width="50%">](https://www.youtube.com/watch?v=zpJZMAIo5Sw "BAD APPLE ON ARDUINO V2!")
 
-the system uses a producer-consumer architecture:
+## features
 
-python captures video frames, resizes them based on your config, and applies b/w thresholding.
+- realtime video streaming to ssd1306 (128x64)
+- 1-bit grayscale conversion with adjustable threshold
+- run-length encoding to reduce serial bandwidth
+- 0xAA handshake-based frame synchronization
+- optional realtime fps sync to original video
+- audio extraction and playback (via moviepy + pygame)
+- loop mode and frame-accurate seeking
+- live oled preview on host pc
+- designed for very high baud rates (default: 2,000,000)
+- realtime sync and frame integrity
 
-data is compressed using run-length encoding (rle) to minimize serial traffic.
+## realtime sync and frame integrity
+in v2.0.0, a toggle for "realtime sync" is implemented to handle the audio-visual drift. when enabled, the engine calculates the expected frame based on the system clock and skips (drops) processed frames if the hardware (arduino/oled) lags behind. when disabled, the engine forces the display of every single frame, ensuring perfect visual continuity (frame integrity) at the cost of losing synchronization with the audio over time.
 
-a hardware handshake protocol (0xaa) ensures the arduino is ready before the next frame is sent.
+## performance disclaimer
 
-audio is automatically extracted and synced using the system clock.
+this project is fundamentally limited by hardware constraints.
 
---- performance warning / disclaimer ---
+the ssd1306 operates over i2c, which is typically limited to ~800khz. 
 
-heads up: the fps will be variable. don't expect the smoothest 30fps experience.
+all frame data must travel from the host pc over serial, be decoded by a 16mhz microcontroller, and then forwarded to the display. 
 
-why is it lagging? the bottlenecks are purely hardware-related (arduino side):
+complex scenes significantly reduce effective throughput.
 
-i2c bus limits: even at 800khz, pushing a full frame (e.g., 1024 bytes for 128x64) to the oled takes time.
+as a result:
+- framerate is variable
+- fast or noisy scenes may slow down playback
+- slow-motion effects are expected
+- perfect realtime playback is not guaranteed, even with sync enabled
 
-serial processing: arduino has to manage incoming 2m baud serial data and redirect it to the i2c bus.
+this is a hardware-bound limitation, not a software bug.
 
-cpu clock: the 16mhz atmega328p is doing its best, but handling high-speed serial + i2c bit-banging is heavy work.
+## requirements
 
-expect some "stuttering" or "rubber-banding" depending on how fast the arduino can clear its buffer.
+### hardware
 
---- hardware ---
+- arduino (uno, nano, or compatible 16mhz avr)
+- ssd1306 128x64 oled display (i2c)
+- wiring:
+  - sda -> a4
+  - scl -> a5
+- usb connection to host pc
 
-arduino (uno [i tried a nano clone too but it didnt work])
+### software
 
-ssd1306 oled (supports 128x64, 128x32 or custom sizes)
+- python 3.x
+- opencv-python
+- pyserial
+- numpy
+- pillow
+- pygame
+- moviepy (optional, required for audio extraction)
 
-wiring:
+## setup
 
-vcc -> 5v
+1. flash the corresponding arduino sketch (.ino) that:
+   - initializes the ssd1306
+   - sends 0xAA to request each frame
+   - decodes rle frame data
+2. install python dependencies listed above. 
+```bash
+pip install opencv-python pyserial numpy pillow pygame moviepy
+```
+3. connect the arduino and oled display.
+4. launch the python application.
+5. select a video file (mp4, avi, mkv).
 
-gnd -> gnd
+if moviepy is available, audio will be extracted automatically and synced during playback.
 
-scl -> a5 (on uno/nano)
+## usage
 
-sda -> a4 (on uno/nano)
+```bash
+python player.py (or player_VX_X_X.py)
+```
+select the serial port, verify baud rate (default: 2000000), choose a video file, then start streaming.
 
+the arduino requests each frame by sending the byte 0xAA. 
 
---- setup ---
+upon receiving this handshake, the host sends a run-length encoded framebuffer. 
 
-flash the badapple.ino to your arduino.
+very high baud rates are used to minimize latency, which may expose usb-serial limitations depending on hardware quality.
 
-make sure you have python 3.12+ installed.
+## notes
 
-install dependencies: pip install opencv-python pyserial pillow numpy pygame moviepy
+best results are achieved with high-contrast source videos
 
-select your video file via the gui.
+lowering threshold noise improves rle compression
 
-identify your serial port (e.g., 'com3' or '/dev/ttyusb0').
+usb-to-serial adapters vary significantly in reliability at 2m baud
 
---- run ---
+this project is not intended for production use
 
-python player.pyw
+## contributing
 
-the script uses a handshake system (0xaa) to keep the python sender and arduino receiver in sync. 
+issues should be opened before pull requests to discuss changes. 
+keep code style consistent with the existing codebase. experimental optimizations and hardware-specific hacks are welcome, but should be documented clearly.
 
-it won't fix the low fps, but it prevents the screen from glitching out into static garbage. 
+## PLEASE GIVE CREDITS.
 
-(note: random pixels can appear because of extreme 2m baud rate signal noise.)
+made by wdibt ^.^
