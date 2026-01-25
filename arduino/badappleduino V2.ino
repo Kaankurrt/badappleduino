@@ -15,7 +15,7 @@ inline void send_cmd(uint8_t c) {
   Wire.write(c);
   Wire.endTransmission();
 }
-
+//define the oled commands
 void oled_init() {
   uint8_t init_cmds[] = {
     0xAE, 0xD5, 0x80, 0xA8, 0x3F, 0xD3, 0x00, 0x40,
@@ -44,7 +44,7 @@ void blast_frame(uint8_t *data) {
 }
 
 void setup() {
-  Serial.begin(2000000);
+  Serial.begin(2000000); //2M baud rate (if you change this, make sure you selected the correct one on the python)
   Wire.begin();
   Wire.setClock(800000); // oc i2c
   
