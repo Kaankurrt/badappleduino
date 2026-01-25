@@ -1,4 +1,5 @@
 #made by wdibt ^.^
+#PLEASE GIVE CREDIT
 #DO NOT USE THE LATEST PYTHON (3.14+) PLEASE USE 3.13.11 OR OLDER.
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
@@ -18,6 +19,7 @@ except ImportError:
         VideoFileClip = None
 
 class BadAppleStreamerV312:
+    # --- gui ---
     def __init__(self, root):
         self.root = root
         self.root.title("BadAppleDuino v2.0.0")
