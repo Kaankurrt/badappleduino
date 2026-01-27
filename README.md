@@ -109,4 +109,10 @@ keep code style consistent with the existing codebase. experimental optimization
 
 ## PLEASE GIVE CREDITS.
 
+### if you have any questions, feel free to open an issue or send me an email
+
+```bash
+ktekapps@gmail.com
+```
+
 made by wdibt ^.^
