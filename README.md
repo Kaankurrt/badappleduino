@@ -61,8 +61,7 @@ this is a hardware-bound limitation, not a software bug.
 - numpy
 - pillow
 - pygame
-- moviepy (optional, required for audio extraction)
-
+- moviepy 
 ## setup
 
 1. flash the corresponding arduino sketch (.ino) that:
